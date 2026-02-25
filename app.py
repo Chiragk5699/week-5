@@ -1,50 +1,99 @@
 import streamlit as st
 import pandas as pd
-from apputil import *
 
-# Load Titanic dataset
-df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
-
-st.write("""
-# Titanic Visualization 1
-""")
-
-st.write(
-    "Did women in first class have higher survival rates than men across all age groups?"
+from apputil import (
+    survival_demographics,
+    family_groups,
+    last_names,
+    visualize_families
 )
 
-fig1 = visualize_demographic(df)
-st.plotly_chart(fig1, use_container_width=True)
+# ---------------------------------------------------
+# Page Setup
+# ---------------------------------------------------
+st.set_page_config(page_title="Titanic Analysis App", layout="wide")
 
-st.write("""
-# Titanic Visualization 2
-""")
-
-fig2 = visualize_families(df)
-st.plotly_chart(fig2, use_container_width=True)
-
-st.write("""
-# Titanic Visualization Bonus
-""")
-
-fig3 = visualize_family_size(df)
-st.plotly_chart(fig3, use_container_width=True)
+st.title("🚢 Titanic Data Analysis App")
 
 
+# ===================================================
+# ================= EXERCISE 1 ======================
+# ===================================================
 
+st.header("Exercise 1: Survival Demographics")
 
-st.write("### Question:")
 st.write(
-    "Does family size affect ticket fare differently across passenger classes?"
+    """
+    **Question:**  
+    How does survival rate differ across passenger class,
+    sex, and age group?
+    """
 )
-from apputil import family_groups, last_names, visualize_families
-st.subheader("Family Size and Fare Analysis")
 
-table = family_groups(df)
-st.dataframe(table)
+# Call function (NO df argument)
+survival_table = survival_demographics()
+
+st.subheader("Survival Demographics Table")
+st.dataframe(survival_table)
+
+
+# ===================================================
+# ================= EXERCISE 2 ======================
+# ===================================================
+
+st.header("Exercise 2: Family Size and Wealth")
+
+st.write(
+    """
+    **Question:**  
+    Does family size influence ticket fare differently
+    across passenger classes?
+    """
+)
+
+# ---------------------------------------------------
+# Family Groups Table
+# ---------------------------------------------------
+
+family_table = family_groups()
+
+st.subheader("Family Size Grouped by Passenger Class")
+st.dataframe(family_table)
+
+
+# ---------------------------------------------------
+# Last Name Counts
+# ---------------------------------------------------
+
 st.subheader("Last Name Counts")
 
-name_counts = last_names(df)
+name_counts = last_names()
+
 st.write(name_counts.head(20))
-fig = visualize_families(df)
-st.plotly_chart(fig)
+
+st.write(
+    """
+    **Insight:**  
+    Many large last-name groups align with larger family sizes,
+    but not perfectly. Some passengers share last names without
+    being recorded in the same immediate family group.
+    """
+)
+
+
+# ---------------------------------------------------
+# Visualization
+# ---------------------------------------------------
+
+st.subheader("Visualization: Average Fare by Family Size and Class")
+
+fig = visualize_families()
+st.plotly_chart(fig, use_container_width=True)
+
+
+# ---------------------------------------------------
+# Footer
+# ---------------------------------------------------
+
+st.markdown("---")
+st.write("Built with Streamlit and Plotly")

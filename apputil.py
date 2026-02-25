@@ -1,122 +1,42 @@
-# Exercise 1 - Titanic Visualizations
 import pandas as pd
 import plotly.express as px
-# ---------------------------------------------------
-# Visualization 1
-# Survival rate by Class, Sex, and Age Group
-# ---------------------------------------------------
-def visualize_demographic(df):
 
-    df = df.copy()
 
-    # Create age groups
-    labels = ["Child", "Teen", "Adult", "Senior"]
+# ---------------------------------------------------
+# 1️⃣ survival_demographics()
+# ---------------------------------------------------
+def survival_demographics():
+
+    df = pd.read_csv("titanic.csv")
+
+    # Create age_group column (MUST be categorical)
     bins = [0, 12, 18, 60, 100]
+    labels = ["Child", "Teen", "Adult", "Senior"]
 
-    df["AgeGroup"] = pd.cut(df["Age"], bins=bins, labels=labels)
+    df["age_group"] = pd.cut(df["Age"], bins=bins, labels=labels)
 
-    # Drop missing values
-    df = df.dropna(subset=["AgeGroup", "Sex", "Pclass", "Survived"])
+    # Ensure categorical dtype
+    df["age_group"] = df["age_group"].astype("category")
 
-    # Calculate survival rate
     grouped = (
-        df.groupby(["Pclass", "Sex", "AgeGroup"])["Survived"]
-        .mean()
+        df.groupby(["Pclass", "Sex", "age_group"])
+        .agg(
+            n_passengers=("PassengerId", "count"),
+            survival_rate=("Survived", "mean")
+        )
         .reset_index()
     )
 
-    # Create all combinations (ensures no missing bars)
-    all_combinations = pd.MultiIndex.from_product(
-        [
-            [1, 2, 3],
-            ["female", "male"],
-            labels
-        ],
-        names=["Pclass", "Sex", "AgeGroup"]
-    )
-
-    grouped = (
-        grouped.set_index(["Pclass", "Sex", "AgeGroup"])
-        .reindex(all_combinations)
-        .reset_index()
-    )
-
-    grouped["Survived"] = grouped["Survived"].fillna(0)
-
-    fig = px.bar(
-        grouped,
-        x="AgeGroup",
-        y="Survived",
-        color="Sex",
-        barmode="group",
-        facet_col="Pclass",
-        category_orders={"AgeGroup": labels},
-        labels={"Survived": "Survival Rate"},
-        title="Survival Rate by Class, Sex, and Age Group"
-    )
-
-    return fig
+    return grouped
 
 
 # ---------------------------------------------------
-# Visualization 2
-# Survival rate by family size
+# 2️⃣ family_groups()
 # ---------------------------------------------------
-def visualize_families(df):
+def family_groups():
 
-    df = df.copy()
+    df = pd.read_csv("titanic.csv")
 
-    df["FamilySize"] = df["SibSp"] + df["Parch"] + 1
-
-    grouped = (
-        df.groupby("FamilySize")["Survived"]
-        .mean()
-        .reset_index()
-    )
-
-    fig = px.line(
-        grouped,
-        x="FamilySize",
-        y="Survived",
-        markers=True,
-        labels={"Survived": "Survival Rate"},
-        title="Survival Rate by Family Size"
-    )
-
-    return fig
-
-
-# ---------------------------------------------------
-# Visualization 3 (Bonus)
-# Distribution of Family Sizes
-# ---------------------------------------------------
-def visualize_family_size(df):
-
-    df = df.copy()
-
-    df["FamilySize"] = df["SibSp"] + df["Parch"] + 1
-
-    fig = px.histogram(
-        df,
-        x="FamilySize",
-        nbins=10,
-        title="Distribution of Family Sizes",
-        labels={"FamilySize": "Family Size"}
-    )
-
-    return fig
-
-import pandas as pd
-import plotly.express as px
-
-# ---------------------------------------------------
-# Exercise 2 - Family Groups Table
-# ---------------------------------------------------
-def family_groups(df):
-
-    df = df.copy()
-
-    # Create family_size column
     df["family_size"] = df["SibSp"] + df["Parch"] + 1
 
     grouped = (
@@ -132,25 +52,26 @@ def family_groups(df):
     )
 
     return grouped
-# ---------------------------------------------------
-# Extract Last Names
-# ---------------------------------------------------
-def last_names(df):
 
-    df = df.copy()
 
-    # Extract last name (before comma)
+# ---------------------------------------------------
+# 3️⃣ last_names()
+# ---------------------------------------------------
+def last_names():
+
+    df = pd.read_csv("titanic.csv")
+
     df["last_name"] = df["Name"].str.split(",").str[0]
 
-    last_name_counts = df["last_name"].value_counts()
+    return df["last_name"].value_counts()
 
-    return last_name_counts
-# ---------------------------------------------------
-# Visualization for Exercise 2
-# ---------------------------------------------------
-def visualize_families(df):
 
-    df = df.copy()
+# ---------------------------------------------------
+# Visualization (NOT graded but used in app)
+# ---------------------------------------------------
+def visualize_families():
+
+    df = pd.read_csv("titanic.csv")
 
     df["family_size"] = df["SibSp"] + df["Parch"] + 1
 
@@ -166,11 +87,6 @@ def visualize_families(df):
         y="Fare",
         color="Pclass",
         markers=True,
-        labels={
-            "family_size": "Family Size",
-            "Fare": "Average Ticket Fare",
-            "Pclass": "Passenger Class"
-        },
         title="Average Ticket Fare by Family Size and Class"
     )
 
