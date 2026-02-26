@@ -3,10 +3,14 @@ import pandas as pd
 
 from apputil import (
     survival_demographics,
+    visualize_demographic,
     family_groups,
     last_names,
     visualize_families
 )
+
+df = pd.read_csv("https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv")
+
 
 # ---------------------------------------------------
 # Page Setup
@@ -36,6 +40,9 @@ survival_table = survival_demographics()
 st.subheader("Survival Demographics Table")
 st.dataframe(survival_table)
 
+fig1 = visualize_demographic()
+st.plotly_chart(fig1, use_container_width=True)
+
 
 # ===================================================
 # ================= EXERCISE 2 ======================
@@ -59,6 +66,8 @@ family_table = family_groups()
 
 st.subheader("Family Size Grouped by Passenger Class")
 st.dataframe(family_table)
+fig2 = visualize_families()
+st.plotly_chart(fig2, use_container_width=True)
 
 
 # ---------------------------------------------------
@@ -87,13 +96,3 @@ st.write(
 
 st.subheader("Visualization: Average Fare by Family Size and Class")
 
-fig = visualize_families()
-st.plotly_chart(fig, use_container_width=True)
-
-
-# ---------------------------------------------------
-# Footer
-# ---------------------------------------------------
-
-st.markdown("---")
-st.write("Built with Streamlit and Plotly")
